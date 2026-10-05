@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyberpunk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypePulse — Next-Gen Customizable Typing Experience</title>
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body class="font-jetbrains">
+
+  <!-- Particle FX Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div id="app">
+    <!-- Top Navigation Header -->
+    <header>
+      <div class="brand" onclick="location.reload()">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <span class="brand-title">TypePulse</span>
+          <span class="brand-badge">PRO</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- User Level Progression Badge -->
+        <div id="header-level-badge" class="user-level-badge" title="View Career Level & Stats">
+          <span>⭐</span> Level <span class="level-num">1</span>
+        </div>
+
+        <!-- Sound Toggle -->
+        <button id="btn-toggle-sound" class="btn-icon active" title="Sound Effects Toggle" aria-label="Toggle Sound">
+          🔊
+        </button>
+
+        <!-- Custom Text Mode -->
+        <button id="btn-custom-text" class="btn-icon" title="Practice Custom Text / Code" aria-label="Custom Text">
+          📝
+        </button>
+
+        <!-- Career Stats & Achievements Modal -->
+        <button id="btn-open-stats" class="btn-icon" title="Career Stats & Trophies" aria-label="Stats & Achievements">
+          🏆
+        </button>
+
+        <!-- Settings Modal Button -->
+        <button id="btn-open-settings" class="btn-icon" title="Customize Appearance, Audio & Rules" aria-label="Settings">
+          ⚙️
+        </button>
+
+        <!-- Fullscreen Button -->
+        <button id="btn-fullscreen" class="btn-icon" title="Toggle Fullscreen" aria-label="Fullscreen">
+          ⛶
+        </button>
+      </div>
+    </header>
+
+    <!-- Game Modes & Config Bar -->
+    <section class="config-panel">
+      <!-- Main Mode Pills -->
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="time">
+          <span>⏱️</span> Time
+        </button>
+        <button class="mode-btn" data-mode="words">
+          <span>🔤</span> Words
+        </button>
+        <button class="mode-btn" data-mode="quote">
+          <span>💬</span> Quote
+        </button>
+        <button class="mode-btn" data-mode="zen">
+          <span>☯️</span> Zen
+        </button>
+        <button class="mode-btn" data-mode="survival">
+          <span>💀</span> Sudden Death
+        </button>
+      </div>
+
+      <!-- Sub-Options Bar (Time / Words limits, Difficulty, Modifiers) -->
+      <div class="sub-config-bar">
+        <!-- Time Limits (for Time Mode) -->
+        <div id="time-options-group" class="config-group">
+          <span class="config-group-label">Duration</span>
+          <button class="sub-btn time-btn" data-time="15">15s</button>
+          <button class="sub-btn time-btn active" data-time="30">30s</button>
+          <button class="sub-btn time-btn" data-time="60">60s</button>
+          <button class="sub-btn time-btn" data-time="120">120s</button>
+        </div>
+
+        <!-- Word Counts (for Words Mode) -->
+        <div id="words-options-group" class="config-group" style="display: none;">
+          <span class="config-group-label">Count</span>
+          <button class="sub-btn word-btn" data-words="10">10</button>
+          <button class="sub-btn word-btn active" data-words="25">25</button>
+          <button class="sub-btn word-btn" data-words="50">50</button>
+          <button class="sub-btn word-btn" data-words="100">100</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Difficulty Selection -->
+        <div class="config-group">
+          <span class="config-group-label">Difficulty</span>
+          <button class="sub-btn diff-btn" data-diff="easy">Easy</button>
+          <button class="sub-btn diff-btn active" data-diff="medium">Medium</button>
+          <button class="sub-btn diff-btn" data-diff="hard">Hard</button>
+          <button class="sub-btn diff-btn" data-diff="nightmare" title="Extremely rare and long words">Nightmare</button>
+          <button class="sub-btn diff-btn" data-diff="code" title="Programming syntax & keywords">Code</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Modifiers -->
+        <div class="config-group">
+          <div id="toggle-punctuation" class="toggle-chip" title="Toggle punctuation marks">
+            <span>.,!?</span> Punctuation
+          </div>
+          <div id="toggle-numbers" class="toggle-chip" title="Toggle numbers">
+            <span>123</span> Numbers
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dynamic View Area -->
+    <main>
+      <!-- 1. Typing Game Area -->
+      <div id="typing-view" class="typing-wrapper">
+        <!-- Live HUD -->
+        <div class="live-hud">
+          <div class="hud-left">
+            <div class="hud-metric">
+              <span id="live-timer-label" class="hud-metric-label">Time Left</span>
+              <span id="live-timer" class="hud-metric-val">30s</span>
+            </div>
+            <div class="hud-metric">
+              <span class="hud-metric-label">Live WPM</span>
+              <span id="live-wpm" class="hud-metric-val">0</span>
+            </div>
+            <div class="hud-metric">
+              <span class="hud-metric-label">Accuracy</span>
+              <span id="live-acc" class="hud-metric-val">100%</span>
+            </div>
+          </div>
+
+          <!-- Streak / Combo Fire Badge -->
+          <div id="combo-badge" class="combo-badge">
+            <span>🔥 Streak</span>
+            <span id="combo-count">0x</span>
+          </div>
+        </div>
+
+        <!-- Active Words Container -->
+        <div class="words-container-wrapper typing-font">
+          <div id="words-container"></div>
+          <div id="caret" class="smooth"></div>
+          <input type="text" id="input-capture" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+          <!-- Focus Blur Overlay -->
+          <div id="focus-overlay">
+            <div class="focus-prompt">
+              <span>⌨️</span> Click or press any key to focus & start typing
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Keyboard Hint -->
+        <div class="typing-actions">
+          <button id="btn-quick-restart" class="btn-restart" title="Restart test">
+            <span>🔄 Restart Test</span>
+            <span class="kbd-hint">Tab</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Detailed Results View -->
+      <div id="results-view">
+        <div class="results-card">
+          <!-- Top Results Header -->
+          <div class="results-header">
+            <div class="results-hero-stat">
+              <div id="result-wpm" class="hero-wpm">0</div>
+              <div class="hero-wpm-label">WPM</div>
+            </div>
+
+            <!-- Tier / Rank Badge -->
+            <div id="result-tier-badge" class="tier-badge">
+              <span>🚀</span> <span>Speed Adept</span>
+            </div>
+          </div>
+
+          <!-- Hero Metrics Grid -->
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-item-label">Raw WPM</span>
+              <span id="result-raw-wpm" class="stat-item-value">0</span>
+              <span class="stat-item-sub">Gross Speed</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item-label">Accuracy</span>
+              <span id="result-acc" class="stat-item-value">100%</span>
+              <span class="stat-item-sub">Precision</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item-label">Consistency</span>
+              <span id="result-consistency" class="stat-item-value">95%</span>
+              <span class="stat-item-sub">Rhythm</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item-label">Time</span>
+              <span id="result-time" class="stat-item-value">30s</span>
+              <span class="stat-item-sub">Duration</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item-label">Max Streak</span>
+              <span id="result-max-streak" class="stat-item-value">0x</span>
+              <span class="stat-item-sub">Combo</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item-label">Keystrokes</span>
+              <span id="result-characters" class="stat-item-value" style="font-size: 1.1rem; padding-top: 0.3rem;">0/0/0/0</span>
+              <span class="stat-item-sub">cor / err / ext / mis</span>
+            </div>
+          </div>
+
+          <!-- Second-by-Second Canvas Timeline Chart -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <span class="chart-title">WPM & Error Progression</span>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: var(--accent);"></span>
+                  <span>Net WPM</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: rgba(255,255,255,0.4);"></span>
+                  <span>Raw WPM</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background: var(--error-color);"></span>
+                  <span>Errors</span>
+                </div>
+              </div>
+            </div>
+            <canvas id="performance-chart"></canvas>
+          </div>
+
+          <!-- Weak Words & Key Error Analysis -->
+          <div class="breakdown-row">
+            <div class="breakdown-card">
+              <div class="breakdown-title">
+                <span>Mistyped Words</span>
+                <button id="btn-practice-weak" class="sub-btn active" style="font-size:0.75rem; display:none;">
+                  🎯 Practice These Words
+                </button>
+              </div>
+              <div id="weak-words-container" class="weak-words-list">
+                <!-- Weak words tags inserted dynamically -->
+              </div>
+            </div>
+
+            <div class="breakdown-card">
+              <div class="breakdown-title">
+                <span>Struggled Keys</span>
+              </div>
+              <div id="weak-keys-container" class="weak-keys-list">
+                <!-- Weak keys inserted dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Gamification XP Earned Banner -->
+          <div class="results-xp-box">
+            <div class="xp-header">
+              <span id="result-level-title" style="font-weight:700;">Level 1 • Novice Typist</span>
+              <span id="xp-earned-num" class="xp-earned-badge">+0 XP</span>
+            </div>
+            <div class="xp-progress-bar">
+              <div id="xp-progress-fill" class="xp-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="results-actions">
+            <button id="btn-play-again" class="btn-primary">
+              <span>🔄 Play Again</span>
+              <span class="kbd-hint" style="background:rgba(0,0,0,0.25); color:#000;">Tab</span>
+            </button>
+            <button id="btn-copy-result" class="btn-secondary">
+              <span>📋 Copy Summary</span>
+            </button>
+            <button id="btn-export-image" class="btn-secondary">
+              <span>🖼️ Export Card Image</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <span>TypePulse Engine v2.0 • Press <kbd class="kbd-hint">Tab</kbd> to restart anytime</span>
+      </div>
+      <div class="footer-links">
+        <a onclick="document.getElementById('btn-open-settings').click()">Themes & Settings</a>
+        <a onclick="document.getElementById('btn-open-stats').click()">Career Stats</a>
+        <a onclick="document.getElementById('btn-custom-text').click()">Custom Text</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 1: SETTINGS & CUSTOMIZATION
+       ======================================================================== -->
+  <div id="settings-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ Customization & Settings</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Themes Section -->
+        <div>
+          <div class="settings-section-title">Color Themes</div>
+          <div id="settings-themes-grid" class="themes-grid">
+            <!-- Dynamically generated themes -->
+          </div>
+        </div>
+
+        <!-- Typography & Appearance -->
+        <div>
+          <div class="settings-section-title">Typography & Visuals</div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Font Family</span>
+              <span class="setting-desc">Choose your preferred monospaced or sans font</span>
+            </div>
+            <select id="setting-font-family">
+              <option value="jetbrains">JetBrains Mono</option>
+              <option value="fira">Fira Code</option>
+              <option value="inter">Inter (Modern Sans)</option>
+              <option value="courier">Courier Prime</option>
+              <option value="arcade">Press Start 2P (8-Bit)</option>
+              <option value="consolas">Consolas</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Font Size (<span id="font-size-display">24px</span>)</span>
+              <span class="setting-desc">Adjust size of typing characters</span>
+            </div>
+            <input type="range" id="setting-font-size" min="18" max="36" value="24">
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Caret Style</span>
+              <span class="setting-desc">Cursor visual indicator style</span>
+            </div>
+            <select id="setting-caret-style">
+              <option value="line">Line (Default)</option>
+              <option value="block">Block</option>
+              <option value="underline">Underline</option>
+              <option value="pulse">Pulse / Blink</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Smooth Caret Animation</span>
+              <span class="setting-desc">Fluid gliding motion between keystrokes</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-smooth-caret" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Keystroke Particle FX</span>
+              <span class="setting-desc">Visual particle explosion upon typing correct characters</span>
+            </div>
+            <select id="setting-particles">
+              <option value="sparks">Electric Sparks</option>
+              <option value="confetti">Confetti</option>
+              <option value="orbs">Neon Orbs</option>
+              <option value="off">Off</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Screen Shake</span>
+              <span class="setting-desc">Subtle arcade screen vibration on typos</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-screenshake" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Audio Synthesizer Controls -->
+        <div>
+          <div class="settings-section-title">Procedural Audio Engine</div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Mechanical Switch Profile</span>
+              <span class="setting-desc">Pure synthesized keyboard sound profile</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <select id="setting-sound-profile">
+                <option value="panda">Tactile Thock (Holy Panda)</option>
+                <option value="blue">Clicky (Cherry MX Blue)</option>
+                <option value="red">Linear (Cherry MX Red)</option>
+                <option value="typewriter">Vintage Typewriter</option>
+                <option value="bubble">Satisfying Bubble Pop</option>
+                <option value="arcade">8-Bit Arcade Blip</option>
+                <option value="off">Mute / Off</option>
+              </select>
+              <button id="btn-test-sound" class="sub-btn active" style="font-size:0.8rem;">Test 🔊</button>
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Volume</span>
+              <span class="setting-desc">Master sound effect volume</span>
+            </div>
+            <input type="range" id="setting-sound-volume" min="0" max="100" value="50">
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Typo Error Sound</span>
+              <span class="setting-desc">Auditory buzz feedback on mistakes</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-error-sound" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Gameplay & Strictness -->
+        <div>
+          <div class="settings-section-title">Gameplay Rules</div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Strict Mode (No Backspace)</span>
+              <span class="setting-desc">Forbids backspacing; forces pure forward momentum</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-strict-mode">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name">Blind Mode</span>
+              <span class="setting-desc">Hides character errors until test is completed</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="setting-blind-mode">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Data Reset -->
+        <div>
+          <div class="settings-section-title">Data Management</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-name" style="color:var(--error-color);">Reset Career Stats</span>
+              <span class="setting-desc">Clears all test history, personal bests, and XP</span>
+            </div>
+            <button id="btn-reset-data" class="btn-secondary" style="color:var(--error-color); border-color:var(--error-color);">
+              Reset All Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: CAREER STATS & ACHIEVEMENTS
+       ======================================================================== -->
+  <div id="stats-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🏆 Career Statistics & Achievements</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Level Progression Banner -->
+        <div class="results-xp-box">
+          <div class="xp-header">
+            <span id="modal-level-title" style="font-weight:700; font-size:1.1rem;">Level 1 — Novice Typist</span>
+            <span id="modal-xp-info" class="xp-earned-badge">0 XP</span>
+          </div>
+          <div class="xp-progress-bar">
+            <div id="modal-xp-fill" class="xp-progress-fill" style="width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- Lifetime Metrics -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-item-label">Personal Best</span>
+            <span id="stats-best-wpm" class="stat-item-value" style="color:var(--accent);">0</span>
+            <span class="stat-item-sub">Peak WPM</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-label">Average WPM</span>
+            <span id="stats-avg-wpm" class="stat-item-value">0</span>
+            <span class="stat-item-sub">Career Avg</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-label">Avg Accuracy</span>
+            <span id="stats-avg-acc" class="stat-item-value">0%</span>
+            <span class="stat-item-sub">Lifetime</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-label">Tests Taken</span>
+            <span id="stats-total-tests" class="stat-item-value">0</span>
+            <span class="stat-item-sub">Completed</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-label">Words Typed</span>
+            <span id="stats-total-words" class="stat-item-value">0</span>
+            <span class="stat-item-sub">Total</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-item-label">Max Streak</span>
+            <span id="stats-max-streak" class="stat-item-value">0x</span>
+            <span class="stat-item-sub">Peak Combo</span>
+          </div>
+        </div>
+
+        <!-- Trophy Shelf / Achievements -->
+        <div>
+          <div class="settings-section-title">Trophy Cabinet</div>
+          <div id="achievements-container" class="achievements-grid">
+            <!-- Dynamically populated achievements -->
+          </div>
+        </div>
+
+        <!-- Recent Test History -->
+        <div>
+          <div class="settings-section-title">Recent Test History</div>
+          <div style="overflow-x: auto;">
+            <table id="history-table" class="history-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>WPM</th>
+                  <th>Raw</th>
+                  <th>Acc</th>
+                  <th>Consistency</th>
+                  <th>Difficulty</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Rows dynamically injected -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: CUSTOM TEXT PRACTICE
+       ======================================================================== -->
+  <div id="custom-text-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📝 Practice Custom Text or Code</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.9rem; color:var(--text-dim);">
+          Paste any custom text, essay, speech, programming snippet, or lyrics below to practice.
+        </p>
+        <textarea id="custom-text-input" class="custom-textarea" placeholder="Paste your custom text here..."></textarea>
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+          <button class="btn-secondary modal-close">Cancel</button>
+          <button id="btn-apply-custom-text" class="btn-primary">Start Practice Drill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/words.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
