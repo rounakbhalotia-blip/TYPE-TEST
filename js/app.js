@@ -175,11 +175,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Window Focus & Blur & Resize management
   focusOverlay.addEventListener('click', () => focusInput());
+  focusOverlay.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    focusInput();
+  });
   typingView.addEventListener('click', () => focusInput());
+  typingView.addEventListener('touchend', (e) => {
+    if (!e.target.closest('button, select, input, a')) {
+      focusInput();
+    }
+  });
   window.addEventListener('resize', () => {
     if (Engine.isActive || Engine.words.length > 0) {
       Engine.updateCaretPosition();
     }
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      Engine.updateCaretPosition();
+    }, 150);
   });
 
   window.addEventListener('keydown', (e) => {

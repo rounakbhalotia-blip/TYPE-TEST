@@ -2,7 +2,11 @@
 <html lang="en" data-theme="cyberpunk">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e17">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>TypePulse — Next-Gen Customizable Typing Experience</title>
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/style.css">
@@ -156,12 +160,12 @@
         <div class="words-container-wrapper typing-font">
           <div id="words-container"></div>
           <div id="caret" class="smooth"></div>
-          <input type="text" id="input-capture" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <input type="text" id="input-capture" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" enterkeyhint="next" aria-label="Typing Input">
 
           <!-- Focus Blur Overlay -->
           <div id="focus-overlay">
             <div class="focus-prompt">
-              <span>⌨️</span> Click or press any key to focus & start typing
+              <span>⌨️</span> Tap or press any key to focus & start typing
             </div>
           </div>
         </div>
@@ -560,7 +564,7 @@
         <!-- Recent Test History -->
         <div>
           <div class="settings-section-title">Recent Test History</div>
-          <div style="overflow-x: auto;">
+          <div class="history-table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; max-width: 100%;">
             <table id="history-table" class="history-table">
               <thead>
                 <tr>
@@ -568,8 +572,8 @@
                   <th>WPM</th>
                   <th>Raw</th>
                   <th>Acc</th>
-                  <th>Consistency</th>
-                  <th>Difficulty</th>
+                  <th><span class="desktop-only">Consistency</span><span class="mobile-only">Cons</span></th>
+                  <th><span class="desktop-only">Difficulty</span><span class="mobile-only">Diff</span></th>
                 </tr>
               </thead>
               <tbody>

@@ -96,6 +96,15 @@ No audio files required! Synthesized in real-time with sub-millisecond latency:
 
 ---
 
+### 📱 6. 100% Mobile & Tablet Responsive
+- **Fluid & Adaptive Layouts**: Fully responsive down to 320px width without horizontal scrolling (`overflow-x: hidden`).
+- **Touch Ergonomics**: All interactive buttons, chips, modes, and controls adhere to 44px–48px minimum touch targets for effortless thumb typing.
+- **Native Bottom Sheets**: On mobile devices, settings, history, and achievements gracefully convert into native-feeling touch bottom sheets.
+- **Virtual Keyboard Optimized**: iOS & Android soft keyboards are fully supported with `inputmode="text"`, automatic zoom prevention (`font-size: 16px`), and soft backspace deletion handling.
+- **Touch-Interactive Analytics Graph**: Slide your thumb across the post-test canvas graph to inspect second-by-second WPM and error metrics on touch devices.
+
+---
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -103,11 +112,11 @@ No audio files required! Synthesized in real-time with sub-millisecond latency:
 | `Tab` | Quick restart test with fresh words |
 | `Esc` | Close any open modal or focus typing area |
 | `Ctrl + Backspace` | Delete entire current word |
-| Any regular key | Auto-focus typing field and start typing |
+| Any regular key / Tap | Auto-focus typing field and start typing |
 
 ---
 
 ## 💻 How to Run
 
-Simply open `index.html` in any modern web browser (Google Chrome, Microsoft Edge, Brave, Firefox, Safari).
-No installation, no node server, and no build step required!
+Simply open `index.html` in any modern web browser (Google Chrome, Microsoft Edge, Brave, Firefox, Safari on Desktop, iOS, or Android).
+No installation, no node server, and no build step required! Or access via the local PowerShell server at `http://localhost:8080/`.

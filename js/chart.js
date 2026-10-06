@@ -36,12 +36,42 @@ class PerformanceChart {
       this.hoverIndex = -1;
       this.render();
     });
+
+    // Touch events for mobile/tablet sliding inspection
+    this.canvas.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        const rect = this.canvas.getBoundingClientRect();
+        const touchX = e.touches[0].clientX - rect.left;
+        this.handleHover(touchX);
+      }
+    }, { passive: true });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0]) {
+        const rect = this.canvas.getBoundingClientRect();
+        const touchX = e.touches[0].clientX - rect.left;
+        this.handleHover(touchX);
+      }
+    }, { passive: true });
+
+    this.canvas.addEventListener('touchend', () => {
+      this.hoverIndex = -1;
+      this.render();
+    });
+
+    window.addEventListener('resize', () => {
+      if (this.data && this.data.length > 0) {
+        this.render();
+      }
+    });
   }
 
   handleHover(mouseX) {
     if (!this.data || this.data.length < 2) return;
-    const padding = { top: 30, right: 30, bottom: 40, left: 45 };
-    const chartWidth = this.canvas.clientWidth - padding.left - padding.right;
+    const clientWidth = this.canvas.clientWidth || 700;
+    const isMobile = clientWidth < 520;
+    const padding = isMobile ? { top: 22, right: 15, bottom: 30, left: 32 } : { top: 30, right: 35, bottom: 40, left: 45 };
+    const chartWidth = clientWidth - padding.left - padding.right;
 
     const relativeX = mouseX - padding.left;
     if (relativeX < 0 || relativeX > chartWidth) {
@@ -68,7 +98,8 @@ class PerformanceChart {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, clientWidth, clientHeight);
 
-    const padding = { top: 30, right: 35, bottom: 40, left: 45 };
+    const isMobile = clientWidth < 520;
+    const padding = isMobile ? { top: 22, right: 15, bottom: 30, left: 32 } : { top: 30, right: 35, bottom: 40, left: 45 };
     const width = clientWidth - padding.left - padding.right;
     const height = clientHeight - padding.top - padding.bottom;
 

@@ -7,17 +7,26 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-primary);
   color: var(--text-main);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   transition: background-color 0.25s ease, color 0.25s ease;
   user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+  font-family: inherit;
 }
 
 /* Dynamic Fonts based on setting */
@@ -60,11 +69,18 @@ body.font-consolas .typing-font { font-family: Consolas, monospace; }
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   max-width: 1140px;
   margin: 0 auto;
   padding: 1.5rem 1.5rem 2rem 1.5rem;
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   position: relative;
   z-index: 10;
+  overflow-x: hidden;
 }
 
 /* Canvas FX Layer */
@@ -139,6 +155,8 @@ header {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .user-level-badge {
@@ -147,12 +165,14 @@ header {
   gap: 0.45rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  padding: 0.35rem 0.75rem;
+  padding: 0.45rem 0.85rem;
+  min-height: 44px;
   border-radius: 9999px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 .user-level-badge:hover {
   border-color: var(--accent);
@@ -167,14 +187,18 @@ header {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-dim);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  font-size: 1.15rem;
 }
 .btn-icon:hover {
   color: var(--text-main);
@@ -195,7 +219,9 @@ header {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 2.25rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .mode-selector {
@@ -209,21 +235,25 @@ header {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 100%;
 }
 
 .mode-btn {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  padding: 0.45rem 1rem;
+  padding: 0.55rem 1rem;
+  min-height: 44px;
   border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 .mode-btn:hover {
   color: var(--text-main);
@@ -238,21 +268,24 @@ header {
 .sub-config-bar {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 0.45rem 1.25rem;
+  padding: 0.5rem 1.25rem;
   border-radius: 12px;
   font-size: 0.85rem;
   flex-wrap: wrap;
   justify-content: center;
   backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 100%;
 }
 
 .config-group {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex-wrap: wrap;
 }
 .config-group-label {
   color: var(--text-dim);
@@ -267,11 +300,17 @@ header {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  padding: 0.25rem 0.6rem;
+  padding: 0.4rem 0.75rem;
+  min-height: 42px;
+  min-width: 42px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 .sub-btn:hover {
   color: var(--text-main);
@@ -283,7 +322,7 @@ header {
 
 .divider {
   width: 1px;
-  height: 18px;
+  height: 22px;
   background: var(--border-color);
 }
 
@@ -294,9 +333,11 @@ header {
   color: var(--text-dim);
   cursor: pointer;
   font-weight: 600;
-  padding: 0.25rem 0.55rem;
+  padding: 0.4rem 0.75rem;
+  min-height: 42px;
   border-radius: 6px;
   transition: all 0.2s;
+  touch-action: manipulation;
 }
 .toggle-chip:hover {
   color: var(--text-main);
@@ -834,15 +875,18 @@ header {
   color: #000;
   border: none;
   padding: 0.75rem 1.75rem;
+  min-height: 48px;
   border-radius: 10px;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
   box-shadow: 0 4px 15px var(--accent-glow);
+  touch-action: manipulation;
 }
 .btn-primary:hover {
   transform: translateY(-2px);
@@ -854,14 +898,17 @@ header {
   color: var(--text-main);
   border: 1px solid var(--border-color);
   padding: 0.75rem 1.5rem;
+  min-height: 48px;
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 .btn-secondary:hover {
   border-color: var(--accent);
@@ -923,17 +970,27 @@ header {
   background: transparent;
   border: none;
   color: var(--text-dim);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   cursor: pointer;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  touch-action: manipulation;
+  transition: color 0.15s ease, background 0.15s ease;
 }
-.modal-close:hover {
+.modal-close:hover, .modal-close:active {
   color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .modal-body {
   padding: 1.75rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -981,13 +1038,16 @@ header {
   border: 2px solid transparent;
   border-radius: 10px;
   padding: 0.75rem 0.5rem;
+  min-height: 60px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  touch-action: manipulation;
 }
 .theme-swatch:hover {
   transform: translateY(-2px);
@@ -1014,18 +1074,19 @@ header {
 input[type="range"] {
   -webkit-appearance: none;
   background: rgba(255, 255, 255, 0.1);
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   outline: none;
+  touch-action: manipulation;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--accent);
   cursor: pointer;
-  box-shadow: 0 0 8px var(--accent-glow);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 /* Select Inputs */
@@ -1033,19 +1094,25 @@ select {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  padding: 0.45rem 1rem;
+  padding: 0.5rem 1rem;
+  min-height: 44px;
   border-radius: 8px;
   outline: none;
   cursor: pointer;
   font-weight: 600;
+  font-size: 16px; /* Prevents iOS auto zoom */
+  touch-action: manipulation;
+  max-width: 100%;
 }
 
 /* Switch Checkbox */
 .switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 48px;
+  height: 28px;
+  min-width: 48px;
+  min-height: 28px;
 }
 .switch input {
   opacity: 0;
@@ -1057,14 +1124,15 @@ select {
   cursor: pointer;
   inset: 0;
   background-color: rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
+  border-radius: 28px;
   transition: 0.2s;
+  touch-action: manipulation;
 }
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  height: 22px;
+  width: 22px;
   left: 3px;
   bottom: 3px;
   background-color: #fff;
@@ -1193,17 +1261,570 @@ footer {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  width: 100%;
 }
 .footer-links {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 .footer-links a {
   color: var(--text-dim);
   text-decoration: none;
   cursor: pointer;
+  touch-action: manipulation;
+  padding: 0.4rem 0.2rem;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
 }
 .footer-links a:hover {
   color: var(--accent);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE OPTIMIZATIONS
+   ========================================================================== */
+
+/* --- Tablet / Medium Screens (<= 900px) --- */
+@media (max-width: 900px) {
+  #app {
+    padding: 1.25rem 1rem 1.75rem 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .sub-config-bar {
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+  }
+  .sub-config-bar .divider {
+    display: none;
+  }
+  .config-group {
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.85rem;
+  }
+
+  .breakdown-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .modal-card {
+    max-width: 92vw;
+    max-height: 88vh;
+  }
+}
+
+/* --- Phablet / Standard Mobile (<= 768px) --- */
+@media (max-width: 768px) {
+  header {
+    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .brand-title {
+    font-size: 1.3rem;
+  }
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+  }
+
+  .header-actions {
+    gap: 0.45rem;
+  }
+
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .config-panel {
+    margin-bottom: 1.5rem;
+    gap: 0.65rem;
+  }
+
+  .mode-selector {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem;
+  }
+
+  .mode-btn {
+    flex: 1 1 calc(33.33% - 0.4rem);
+    min-width: 90px;
+    min-height: 44px;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.82rem;
+    justify-content: center;
+  }
+
+  .sub-config-bar {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+    padding: 0.85rem;
+  }
+
+  .config-group {
+    width: 100%;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+  .config-group-label {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.15rem;
+  }
+
+  .sub-btn {
+    flex: 1 1 auto;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0.45rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .toggle-chip {
+    flex: 1 1 auto;
+    min-height: 42px;
+    justify-content: center;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  .live-hud {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .hud-left {
+    gap: 1.1rem;
+    flex-wrap: wrap;
+  }
+
+  .hud-metric-val {
+    font-size: 1.45rem;
+  }
+
+  .words-container-wrapper {
+    min-height: 140px;
+    max-height: 140px;
+    padding: 0.25rem 0;
+  }
+
+  #words-container {
+    font-size: 20px;
+    line-height: 1.5;
+    gap: 0.45em 0.55em;
+  }
+
+  .typing-actions {
+    margin-top: 1.25rem;
+  }
+  .btn-restart {
+    width: 100%;
+    max-width: 280px;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  /* Results Card Responsive */
+  .results-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-wpm {
+    font-size: 3.8rem;
+  }
+  .hero-wpm-label {
+    font-size: 1.1rem;
+  }
+
+  .tier-badge {
+    align-self: flex-start;
+    font-size: 0.92rem;
+    padding: 0.45rem 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-item {
+    padding: 0.75rem 0.6rem;
+  }
+  .stat-item-label {
+    font-size: 0.68rem;
+  }
+  .stat-item-value {
+    font-size: 1.35rem;
+  }
+
+  .chart-container {
+    padding: 0.85rem 0.65rem;
+    margin-bottom: 1.5rem;
+  }
+  #performance-chart {
+    height: 190px;
+  }
+
+  .breakdown-row {
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+  .breakdown-card {
+    padding: 1rem;
+  }
+
+  .results-xp-box {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .results-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  .results-actions button {
+    width: 100%;
+    min-height: 50px;
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  /* Modals */
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+  .modal-card {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 16px;
+  }
+  .modal-header {
+    padding: 1rem 1.25rem;
+  }
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  .modal-body {
+    padding: 1.25rem 1.1rem;
+    gap: 1.25rem;
+  }
+
+  .themes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+}
+
+/* --- Smartphone / Small Mobile (<= 520px) --- */
+@media (max-width: 520px) {
+  #app {
+    padding: 0.75rem 0.75rem 1.5rem 0.75rem;
+    padding-left: max(0.65rem, env(safe-area-inset-left));
+    padding-right: max(0.65rem, env(safe-area-inset-right));
+    padding-top: max(0.65rem, env(safe-area-inset-top));
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .brand {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+  }
+
+  .user-level-badge {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8rem;
+    justify-content: center;
+  }
+
+  #btn-fullscreen {
+    display: none !important;
+  }
+
+  .btn-icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Mode selector 2-column or fluid wrapping on narrow screens */
+  .mode-selector {
+    padding: 0.35rem;
+    gap: 0.35rem;
+  }
+  .mode-btn {
+    flex: 1 1 calc(50% - 0.35rem);
+    min-height: 44px;
+    font-size: 0.82rem;
+    padding: 0.5rem 0.4rem;
+  }
+  .mode-btn:last-child {
+    flex: 1 1 100%;
+  }
+
+  .sub-config-bar {
+    padding: 0.65rem 0.5rem;
+    gap: 0.65rem;
+    border-radius: 10px;
+  }
+  .sub-btn {
+    min-height: 42px;
+    padding: 0.4rem 0.45rem;
+    font-size: 0.8rem;
+  }
+  .toggle-chip {
+    min-height: 42px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  /* Live HUD vertical stacking on phones */
+  .live-hud {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0;
+  }
+  .hud-left {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .hud-metric {
+    align-items: center;
+    text-align: center;
+  }
+  .hud-metric-label {
+    font-size: 0.65rem;
+  }
+  .hud-metric-val {
+    font-size: 1.35rem;
+  }
+  .combo-badge {
+    width: 100%;
+    justify-content: center;
+    min-height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .words-container-wrapper {
+    min-height: 130px;
+    max-height: 130px;
+  }
+  #words-container {
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  .focus-prompt {
+    padding: 0.65rem 1rem;
+    font-size: 0.88rem;
+    text-align: center;
+  }
+
+  .btn-restart {
+    width: 100%;
+    max-width: 100%;
+    min-height: 48px;
+  }
+
+  /* Results Card Mobile Stacking */
+  .results-card {
+    padding: 1rem 0.85rem;
+    border-radius: 14px;
+  }
+
+  .hero-wpm {
+    font-size: 3.2rem;
+  }
+  .hero-wpm-label {
+    font-size: 0.95rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .stat-item {
+    padding: 0.65rem 0.5rem;
+  }
+  .stat-item-label {
+    font-size: 0.65rem;
+  }
+  .stat-item-value {
+    font-size: 1.25rem;
+  }
+  .stat-item-sub {
+    font-size: 0.7rem;
+  }
+
+  #performance-chart {
+    height: 160px;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0;
+  }
+  .chart-legend {
+    gap: 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .results-actions button {
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  /* Bottom Drawer Modal on Phones */
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal-card {
+    border-radius: 18px 18px 0 0;
+    max-height: 94vh;
+    width: 100%;
+    max-width: 100%;
+  }
+  .modal-header {
+    padding: 0.85rem 1rem;
+  }
+  .modal-body {
+    padding: 1rem 0.85rem;
+    gap: 1.1rem;
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.75rem 0;
+  }
+  .setting-info {
+    width: 100%;
+  }
+  .setting-row select,
+  .setting-row input[type="range"] {
+    width: 100%;
+    min-height: 44px;
+  }
+  .setting-row .switch {
+    align-self: flex-start;
+  }
+
+  .themes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+  }
+  .theme-swatch {
+    min-height: 56px;
+    padding: 0.5rem 0.35rem;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 0.45rem 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  #toast-container {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    max-width: calc(100vw - 1.5rem);
+  }
+  .toast {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.85rem;
+    padding-top: 1.5rem;
+  }
+  .footer-links {
+    flex-direction: column;
+    gap: 0.45rem;
+    width: 100%;
+  }
+  .desktop-only { display: none !important; }
+  .mobile-only { display: inline !important; }
+  .history-table {
+    font-size: 0.74rem;
+    min-width: 260px;
+  }
+  .history-table th, .history-table td {
+    padding: 0.35rem 0.2rem;
+  }
+}
+
+.desktop-only { display: inline; }
+.mobile-only { display: none; }
+
+.history-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }

@@ -262,6 +262,22 @@ class TypingEngine {
 
   handleInput(e) {
     if (this.isFinished) return;
+
+    // Handle backspace from mobile virtual keyboards
+    if (e && e.inputType === 'deleteContentBackward') {
+      if (this.strictMode) return;
+      const activeWordEl = this.wordsContainer.children[this.currentWordIndex];
+      const typedWord = this.userInput[this.currentWordIndex] || '';
+
+      if (typedWord.length > 0) {
+        this.userInput[this.currentWordIndex] = typedWord.slice(0, -1);
+        this.currentLetterIndex = this.userInput[this.currentWordIndex].length;
+        this.updateWordDOM(activeWordEl, this.words[this.currentWordIndex], this.userInput[this.currentWordIndex]);
+        this.updateCaretPosition();
+      }
+      return;
+    }
+
     const val = this.inputCapture.value;
     this.inputCapture.value = '';
 
