@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const focusOverlay = document.getElementById('focus-overlay');
   const particleCanvas = document.getElementById('particle-canvas');
   const performanceChartCanvas = document.getElementById('performance-chart');
+  const startView = document.getElementById('start-view');
+  const btnStartTest = document.getElementById('btn-start-test');
+  const btnExitTest = document.getElementById('btn-exit-test');
+  const startConfigSummary = document.getElementById('start-config-summary');
   const typingView = document.getElementById('typing-view');
   const resultsView = document.getElementById('results-view');
   const toastContainer = document.getElementById('toast-container');
@@ -26,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsModal = document.getElementById('settings-modal');
   const statsModal = document.getElementById('stats-modal');
   const customTextModal = document.getElementById('custom-text-modal');
+  const customTimeModal = document.getElementById('custom-time-modal');
+  const customWordsModal = document.getElementById('custom-words-modal');
+  const btnCustomTime = document.getElementById('btn-custom-time');
+  const btnCustomWords = document.getElementById('btn-custom-words');
+  const labelCustomTime = document.getElementById('label-custom-time');
+  const labelCustomWords = document.getElementById('label-custom-words');
 
   // Engines
   FX.init(particleCanvas);
@@ -121,10 +131,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Timer & Duration Formatting Helper ---
+  function formatTimerDisplay(seconds) {
+    if (seconds >= 60) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+    return `${seconds}s`;
+  }
+
   // --- Start / Reset Test Lifecycle ---
+  function updateStartConfigSummary() {
+    if (!startConfigSummary) return;
+
+    let modeText = '';
+    if (Store.settings.mode === 'time') {
+      if (Store.settings.isCustomTime && Store.settings.customTimeUnit === 'minutes') {
+        modeText = `⏱️ Time ${Store.settings.customTimeVal}m (${Store.settings.timeLimit}s)`;
+      } else if (Store.settings.timeLimit >= 60) {
+        if (Store.settings.timeLimit % 60 === 0) {
+          modeText = `⏱️ Time ${Store.settings.timeLimit / 60}m`;
+        } else {
+          modeText = `⏱️ Time ${Math.floor(Store.settings.timeLimit / 60)}m ${Store.settings.timeLimit % 60}s`;
+        }
+      } else {
+        modeText = `⏱️ Time ${Store.settings.timeLimit}s`;
+      }
+    } else if (Store.settings.mode === 'words') {
+      modeText = `🔤 Words ${Store.settings.wordCount.toLocaleString()}`;
+    } else if (Store.settings.mode === 'quote') {
+      modeText = `💬 Curated Quotes`;
+    } else if (Store.settings.mode === 'zen') {
+      modeText = `☯️ Zen Mode`;
+    } else if (Store.settings.mode === 'survival') {
+      modeText = `💀 Sudden Death`;
+    }
+
+    const diffText = Store.settings.difficulty.charAt(0).toUpperCase() + Store.settings.difficulty.slice(1);
+    const modifiers = [];
+    if (Store.settings.includePunctuation) modifiers.push('Punctuation');
+    if (Store.settings.includeNumbers) modifiers.push('Numbers');
+
+    let summary = `${modeText} • ${diffText}`;
+    if (modifiers.length > 0) {
+      summary += ` • ${modifiers.join(', ')}`;
+    }
+    startConfigSummary.textContent = summary;
+  }
+
+  function goToLobby() {
+    Engine.reset();
+    document.body.classList.remove('test-active');
+    if (typingView) typingView.style.display = 'none';
+    if (resultsView) resultsView.classList.remove('active');
+    if (startView) startView.style.display = 'flex';
+    updateStartConfigSummary();
+  }
+
   function startFreshTest(customText = null) {
-    resultsView.classList.remove('active');
-    typingView.style.display = 'block';
+    closeAllModals();
+    if (startView) startView.style.display = 'none';
+    if (resultsView) resultsView.classList.remove('active');
+    if (typingView) typingView.style.display = 'flex';
+    document.body.classList.add('test-active');
 
     const options = {
       mode: Store.settings.mode,
@@ -148,10 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (Store.settings.mode === 'time') {
       liveTimerLabelEl.textContent = 'Time Left';
-      liveTimerEl.textContent = `${Store.settings.timeLimit}s`;
+      liveTimerEl.textContent = formatTimerDisplay(Store.settings.timeLimit);
     } else if (Store.settings.mode === 'words') {
       liveTimerLabelEl.textContent = 'Words Left';
-      liveTimerEl.textContent = `${Store.settings.wordCount}`;
+      liveTimerEl.textContent = `${Store.settings.wordCount.toLocaleString()}`;
     } else if (Store.settings.mode === 'zen') {
       liveTimerLabelEl.textContent = 'Elapsed';
       liveTimerEl.textContent = '0s';
@@ -197,33 +267,77 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('keydown', (e) => {
-    // Quick restart on Tab
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      currentPracticeWords = null;
-      startFreshTest();
-      return;
-    }
-
-    // Escape closes modals
+    // Escape closes open modals first
     if (e.key === 'Escape') {
-      closeAllModals();
-      return;
+      if (settingsModal.classList.contains('open') ||
+          statsModal.classList.contains('open') ||
+          customTextModal.classList.contains('open') ||
+          customTimeModal?.classList.contains('open') ||
+          customWordsModal?.classList.contains('open')) {
+        closeAllModals();
+        return;
+      }
     }
 
     // If modal is open or typing inside custom inputs, don't intercept typing
     if (settingsModal.classList.contains('open') ||
         statsModal.classList.contains('open') ||
         customTextModal.classList.contains('open') ||
+        customTimeModal?.classList.contains('open') ||
+        customWordsModal?.classList.contains('open') ||
         ['TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName) ||
         (document.activeElement?.tagName === 'INPUT' && document.activeElement !== inputCapture)) {
       return;
     }
 
-    // Directly forward keydown event to Engine
-    if (typingView.style.display !== 'none' && !resultsView.classList.contains('active')) {
+    // 1. Lobby State
+    const isLobby = startView && startView.style.display !== 'none';
+    if (isLobby) {
+      if (e.key === ' ' || e.code === 'Space' || e.key === 'Enter') {
+        e.preventDefault();
+        startFreshTest();
+        return;
+      }
+      return;
+    }
+
+    // 2. Active Test State
+    const isTestActive = document.body.classList.contains('test-active');
+    if (isTestActive) {
+      // Quick restart on Tab
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        currentPracticeWords = null;
+        startFreshTest();
+        return;
+      }
+
+      // Exit test on Escape
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        goToLobby();
+        return;
+      }
+
+      // Forward typing keydown event to Engine
       focusOverlay.classList.remove('visible');
       Engine.handleKeyDown(e);
+      return;
+    }
+
+    // 3. Results State
+    if (resultsView && resultsView.classList.contains('active')) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        currentPracticeWords = null;
+        startFreshTest();
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        goToLobby();
+        return;
+      }
     }
   });
 
@@ -237,10 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (Engine.mode === 'time') {
-      liveTimerEl.textContent = `${data.timeLeft}s`;
+      liveTimerEl.textContent = formatTimerDisplay(data.timeLeft);
     } else if (Engine.mode === 'words') {
       const remaining = Math.max(0, Engine.wordCountGoal - Engine.currentWordIndex);
-      liveTimerEl.textContent = `${remaining}`;
+      liveTimerEl.textContent = `${remaining.toLocaleString()}`;
     } else {
       liveTimerEl.textContent = `${data.timeElapsed}s`;
     }
@@ -264,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   Engine.onFinish = (result) => {
     // Transition to detailed result screen
+    document.body.classList.remove('test-active');
     typingView.style.display = 'none';
     resultsView.classList.add('active');
 
@@ -365,6 +480,13 @@ document.addEventListener('DOMContentLoaded', () => {
       currentPracticeWords = null;
       startFreshTest();
     };
+
+    const resultsMenuBtn = document.getElementById('btn-results-menu');
+    if (resultsMenuBtn) {
+      resultsMenuBtn.onclick = () => {
+        goToLobby();
+      };
+    }
 
     document.getElementById('btn-copy-result').onclick = () => {
       copyResultCard(result, tier);
@@ -485,31 +607,45 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('time-options-group').style.display = mode === 'time' ? 'flex' : 'none';
         document.getElementById('words-options-group').style.display = mode === 'words' ? 'flex' : 'none';
 
-        startFreshTest();
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
       });
     });
 
     // Time Limit Buttons (15, 30, 60, 120)
-    const timeButtons = document.querySelectorAll('.time-btn');
+    const timeButtons = document.querySelectorAll('.time-btn:not(#btn-custom-time)');
     timeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        timeButtons.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const limit = parseInt(btn.dataset.time, 10);
-        Store.saveSettings({ timeLimit: limit });
-        startFreshTest();
+        Store.saveSettings({ timeLimit: limit, isCustomTime: false });
+        if (labelCustomTime) labelCustomTime.textContent = 'Custom';
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
       });
     });
 
     // Word Count Buttons (10, 25, 50, 100)
-    const wordButtons = document.querySelectorAll('.word-btn');
+    const wordButtons = document.querySelectorAll('.word-btn:not(#btn-custom-words)');
     wordButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        wordButtons.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.word-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const count = parseInt(btn.dataset.words, 10);
-        Store.saveSettings({ wordCount: count });
-        startFreshTest();
+        Store.saveSettings({ wordCount: count, isCustomWords: false });
+        if (labelCustomWords) labelCustomWords.textContent = 'Custom';
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
       });
     });
 
@@ -521,7 +657,11 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
         const diff = btn.dataset.diff;
         Store.saveSettings({ difficulty: diff });
-        startFreshTest();
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
       });
     });
 
@@ -532,7 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const active = !Store.settings.includePunctuation;
         Store.saveSettings({ includePunctuation: active });
         punctToggle.classList.toggle('active', active);
-        startFreshTest();
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
       });
     }
 
@@ -542,16 +686,200 @@ document.addEventListener('DOMContentLoaded', () => {
         const active = !Store.settings.includeNumbers;
         Store.saveSettings({ includeNumbers: active });
         numToggle.classList.toggle('active', active);
+        if (document.body.classList.contains('test-active')) {
+          startFreshTest();
+        } else {
+          updateStartConfigSummary();
+        }
+      });
+    }
+
+    // --- Custom Duration Modal Controls ---
+    const customTimeInput = document.getElementById('custom-time-val');
+    const customTimePreview = document.getElementById('custom-time-preview-note');
+    const unitButtons = document.querySelectorAll('.unit-toggle-btn');
+    const presetChipsTime = document.querySelectorAll('.preset-chip');
+    const btnSaveCustomTime = document.getElementById('btn-save-custom-time');
+
+    function updateCustomTimePreview() {
+      if (!customTimePreview || !customTimeInput) return;
+      const rawVal = parseInt(customTimeInput.value, 10);
+      const val = isNaN(rawVal) || rawVal < 1 ? 1 : rawVal;
+      const activeUnitBtn = document.querySelector('.unit-toggle-btn.active');
+      const unit = activeUnitBtn ? activeUnitBtn.dataset.unit : 'seconds';
+      if (unit === 'minutes') {
+        const secs = val * 60;
+        customTimePreview.innerHTML = `Total Duration: <strong>${val.toLocaleString()} minute${val !== 1 ? 's' : ''} (${secs.toLocaleString()} seconds)</strong>`;
+      } else {
+        customTimePreview.innerHTML = `Total Duration: <strong>${val.toLocaleString()} seconds</strong>`;
+      }
+    }
+
+    if (btnCustomTime) {
+      btnCustomTime.addEventListener('click', () => {
+        openModal(customTimeModal);
+        if (customTimeInput) {
+          customTimeInput.value = Store.settings.customTimeVal || 45;
+          setTimeout(() => customTimeInput.focus(), 80);
+        }
+        const activeUnit = Store.settings.customTimeUnit || 'seconds';
+        unitButtons.forEach(b => b.classList.toggle('active', b.dataset.unit === activeUnit));
+        updateCustomTimePreview();
+      });
+    }
+
+    unitButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        unitButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateCustomTimePreview();
+      });
+    });
+
+    presetChipsTime.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const val = chip.dataset.val;
+        const unit = chip.dataset.unit;
+        if (customTimeInput) customTimeInput.value = val;
+        unitButtons.forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+        updateCustomTimePreview();
+      });
+    });
+
+    customTimeInput?.addEventListener('input', updateCustomTimePreview);
+
+    function applyCustomTime() {
+      const rawVal = parseInt(customTimeInput?.value, 10);
+      if (isNaN(rawVal) || rawVal < 1) {
+        showToast('Please enter a duration of at least 1 second or minute.', '⚠️');
+        return;
+      }
+      const activeUnitBtn = document.querySelector('.unit-toggle-btn.active');
+      const unit = activeUnitBtn ? activeUnitBtn.dataset.unit : 'seconds';
+      const totalSeconds = unit === 'minutes' ? rawVal * 60 : rawVal;
+
+      Store.saveSettings({
+        timeLimit: totalSeconds,
+        customTimeVal: rawVal,
+        customTimeUnit: unit,
+        isCustomTime: true
+      });
+
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+      btnCustomTime?.classList.add('active');
+      if (labelCustomTime) {
+        labelCustomTime.textContent = `${rawVal.toLocaleString()}${unit === 'minutes' ? 'm' : 's'}`;
+      }
+
+      closeAllModals();
+
+      if (document.body.classList.contains('test-active')) {
+        startFreshTest();
+      } else {
+        updateStartConfigSummary();
+      }
+      showToast(`Custom duration set: ${rawVal}${unit === 'minutes' ? 'm' : 's'} (${totalSeconds.toLocaleString()}s)!`, '⏱️');
+    }
+
+    btnSaveCustomTime?.addEventListener('click', applyCustomTime);
+    customTimeInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyCustomTime();
+      }
+    });
+
+    // --- Custom Word Count Modal Controls ---
+    const customWordsInput = document.getElementById('custom-words-val');
+    const customWordsPreview = document.getElementById('custom-words-preview-note');
+    const presetChipsWords = document.querySelectorAll('.preset-chip-word');
+    const btnSaveCustomWords = document.getElementById('btn-save-custom-words');
+
+    function updateCustomWordsPreview() {
+      if (!customWordsPreview || !customWordsInput) return;
+      const rawVal = parseInt(customWordsInput.value, 10);
+      const val = isNaN(rawVal) || rawVal < 1 ? 1 : rawVal;
+      customWordsPreview.innerHTML = `Target Goal: <strong>${val.toLocaleString()} words</strong>`;
+    }
+
+    if (btnCustomWords) {
+      btnCustomWords.addEventListener('click', () => {
+        openModal(customWordsModal);
+        if (customWordsInput) {
+          customWordsInput.value = Store.settings.customWordsVal || 200;
+          setTimeout(() => customWordsInput.focus(), 80);
+        }
+        updateCustomWordsPreview();
+      });
+    }
+
+    presetChipsWords.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const val = chip.dataset.val;
+        if (customWordsInput) customWordsInput.value = val;
+        updateCustomWordsPreview();
+      });
+    });
+
+    customWordsInput?.addEventListener('input', updateCustomWordsPreview);
+
+    function applyCustomWords() {
+      const rawVal = parseInt(customWordsInput?.value, 10);
+      if (isNaN(rawVal) || rawVal < 1) {
+        showToast('Please enter a word count of at least 1.', '⚠️');
+        return;
+      }
+
+      Store.saveSettings({
+        wordCount: rawVal,
+        customWordsVal: rawVal,
+        isCustomWords: true
+      });
+
+      document.querySelectorAll('.word-btn').forEach(b => b.classList.remove('active'));
+      btnCustomWords?.classList.add('active');
+      if (labelCustomWords) {
+        labelCustomWords.textContent = `${rawVal.toLocaleString()}w`;
+      }
+
+      closeAllModals();
+
+      if (document.body.classList.contains('test-active')) {
+        startFreshTest();
+      } else {
+        updateStartConfigSummary();
+      }
+      showToast(`Custom word count set: ${rawVal.toLocaleString()} words!`, '🔤');
+    }
+
+    btnSaveCustomWords?.addEventListener('click', applyCustomWords);
+    customWordsInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyCustomWords();
+      }
+    });
+
+    // Start Test Hero Button
+    if (btnStartTest) {
+      btnStartTest.addEventListener('click', () => {
         startFreshTest();
       });
     }
 
-    // Quick Restart Buttons
+    // Quick Restart Button
     const restartBtn = document.getElementById('btn-quick-restart');
     if (restartBtn) {
       restartBtn.addEventListener('click', () => {
         currentPracticeWords = null;
         startFreshTest();
+      });
+    }
+
+    // Exit Button
+    if (btnExitTest) {
+      btnExitTest.addEventListener('click', () => {
+        goToLobby();
       });
     }
   }
@@ -566,6 +894,8 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsModal.classList.remove('open');
     statsModal.classList.remove('open');
     customTextModal.classList.remove('open');
+    if (customTimeModal) customTimeModal.classList.remove('open');
+    if (customWordsModal) customWordsModal.classList.remove('open');
   }
 
   document.querySelectorAll('.modal-close').forEach(btn => {
@@ -812,13 +1142,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Highlight initial config buttons
   document.querySelectorAll(`.mode-btn[data-mode="${Store.settings.mode}"]`).forEach(b => b.classList.add('active'));
-  document.querySelectorAll(`.time-btn[data-time="${Store.settings.timeLimit}"]`).forEach(b => b.classList.add('active'));
-  document.querySelectorAll(`.word-btn[data-words="${Store.settings.wordCount}"]`).forEach(b => b.classList.add('active'));
+
+  if (Store.settings.isCustomTime) {
+    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+    btnCustomTime?.classList.add('active');
+    if (labelCustomTime) {
+      labelCustomTime.textContent = `${Store.settings.customTimeVal}${Store.settings.customTimeUnit === 'minutes' ? 'm' : 's'}`;
+    }
+  } else {
+    document.querySelectorAll(`.time-btn[data-time="${Store.settings.timeLimit}"]`).forEach(b => b.classList.add('active'));
+  }
+
+  if (Store.settings.isCustomWords) {
+    document.querySelectorAll('.word-btn').forEach(b => b.classList.remove('active'));
+    btnCustomWords?.classList.add('active');
+    if (labelCustomWords) {
+      labelCustomWords.textContent = `${Store.settings.customWordsVal.toLocaleString()}w`;
+    }
+  } else {
+    document.querySelectorAll(`.word-btn[data-words="${Store.settings.wordCount}"]`).forEach(b => b.classList.add('active'));
+  }
+
   document.querySelectorAll(`.diff-btn[data-diff="${Store.settings.difficulty}"]`).forEach(b => b.classList.add('active'));
 
   if (Store.settings.includePunctuation) document.getElementById('toggle-punctuation')?.classList.add('active');
   if (Store.settings.includeNumbers) document.getElementById('toggle-numbers')?.classList.add('active');
 
-  // Launch initial test!
-  startFreshTest();
+  // Open Lobby on initial page load!
+  goToLobby();
 });

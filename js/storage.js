@@ -25,6 +25,11 @@ const DEFAULT_SETTINGS = {
   mode: 'time',
   timeLimit: 30,
   wordCount: 25,
+  customTimeVal: 45,
+  customTimeUnit: 'seconds',
+  isCustomTime: false,
+  customWordsVal: 200,
+  isCustomWords: false,
   difficulty: 'medium',
   includePunctuation: false,
   includeNumbers: false,
@@ -274,3 +279,4 @@ class StorageManager {
 }
 
 const Store = new StorageManager();
+window.Store = Store;

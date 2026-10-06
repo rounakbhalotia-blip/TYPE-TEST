@@ -97,7 +97,7 @@ class TypingEngine {
     } else {
       let count = 60;
       if (this.mode === 'words') count = this.wordCountGoal;
-      else if (this.mode === 'time') count = Math.max(70, Math.ceil(this.timeLimit * 3.5));
+      else if (this.mode === 'time') count = Math.min(600, Math.max(70, Math.ceil(this.timeLimit * 3.5)));
       else if (this.mode === 'zen' || this.mode === 'survival') count = 120;
 
       this.words = generateWordList(this.difficulty, count, this.includePunctuation, this.includeNumbers);
@@ -154,6 +154,29 @@ class TypingEngine {
         wordSpan.appendChild(letterSpan);
       }
 
+      this.wordsContainer.appendChild(wordSpan);
+    });
+  }
+
+  appendMoreWords(count = 50) {
+    if (this.mode === 'quote' || this.mode === 'custom' || this.mode === 'words') return;
+    const newWords = generateWordList(this.difficulty, count, this.includePunctuation, this.includeNumbers);
+    const startIdx = this.words.length;
+    this.words = this.words.concat(newWords);
+
+    newWords.forEach((wordStr, i) => {
+      const wordIdx = startIdx + i;
+      const wordSpan = document.createElement('div');
+      wordSpan.className = 'word';
+      wordSpan.dataset.index = wordIdx;
+
+      for (let j = 0; j < wordStr.length; j++) {
+        const letterSpan = document.createElement('span');
+        letterSpan.className = 'letter';
+        letterSpan.textContent = wordStr[j];
+        letterSpan.dataset.char = wordStr[j];
+        wordSpan.appendChild(letterSpan);
+      }
       this.wordsContainer.appendChild(wordSpan);
     });
   }
@@ -322,6 +345,12 @@ class TypingEngine {
 
       this.currentWordIndex += 1;
       this.currentLetterIndex = 0;
+
+      // Auto-append more words for time or zen mode so user never runs out
+      if ((this.mode === 'time' || this.mode === 'zen' || this.mode === 'survival') &&
+          this.currentWordIndex >= this.words.length - 15) {
+        this.appendMoreWords(50);
+      }
 
       // Check if finished by words or quote mode
       if (this.currentWordIndex >= this.words.length) {
@@ -573,3 +602,4 @@ class TypingEngine {
 }
 
 const Engine = new TypingEngine();
+window.Engine = Engine;

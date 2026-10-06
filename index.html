@@ -91,6 +91,9 @@
           <button class="sub-btn time-btn active" data-time="30">30s</button>
           <button class="sub-btn time-btn" data-time="60">60s</button>
           <button class="sub-btn time-btn" data-time="120">120s</button>
+          <button id="btn-custom-time" class="sub-btn time-btn custom-chip-btn" data-time="custom" title="Custom Duration (seconds or minutes, no limit)">
+            <span>✏️</span> <span id="label-custom-time">Custom</span>
+          </button>
         </div>
 
         <!-- Word Counts (for Words Mode) -->
@@ -100,6 +103,9 @@
           <button class="sub-btn word-btn active" data-words="25">25</button>
           <button class="sub-btn word-btn" data-words="50">50</button>
           <button class="sub-btn word-btn" data-words="100">100</button>
+          <button id="btn-custom-words" class="sub-btn word-btn custom-chip-btn" data-words="custom" title="Custom Word Count (no limit)">
+            <span>✏️</span> <span id="label-custom-words">Custom</span>
+          </button>
         </div>
 
         <div class="divider"></div>
@@ -130,8 +136,53 @@
 
     <!-- Main Dynamic View Area -->
     <main>
+      <!-- 0. Start Lobby / Welcome Screen -->
+      <div id="start-view" class="start-wrapper">
+        <div class="start-card">
+          <div class="start-badge-pill">
+            <span class="pulse-dot"></span>
+            <span id="start-config-summary">⏱️ Time • 30s • Medium</span>
+          </div>
+
+          <h1 class="start-hero-title">Ready to Test Your Speed?</h1>
+          <p class="start-hero-subtitle">Customize your test settings above, then tap start or hit Space to begin typing.</p>
+
+          <div class="start-cta-wrap">
+            <button id="btn-start-test" class="btn-start-hero" aria-label="Start Typing Test">
+              <span class="btn-start-play-icon">▶</span>
+              <span class="btn-start-label">Start Test</span>
+              <span class="kbd-hint">Space / Enter</span>
+            </button>
+          </div>
+
+          <div class="start-features-grid">
+            <div class="start-feature-item">
+              <span class="start-feature-icon">⚡</span>
+              <div class="start-feature-text">
+                <strong>Real-Time Analytics</strong>
+                <span>Live WPM, rhythm consistency & combo streaks</span>
+              </div>
+            </div>
+            <div class="start-feature-item">
+              <span class="start-feature-icon">🔒</span>
+              <div class="start-feature-text">
+                <strong>Word-Lock Accuracy</strong>
+                <span>Fix current typos freely; Space locks words in</span>
+              </div>
+            </div>
+            <div class="start-feature-item">
+              <span class="start-feature-icon">🎯</span>
+              <div class="start-feature-text">
+                <strong>Targeted Drills</strong>
+                <span>Custom practice sets built for your weak words</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 1. Typing Game Area -->
-      <div id="typing-view" class="typing-wrapper">
+      <div id="typing-view" class="typing-wrapper" style="display: none;">
         <!-- Live HUD -->
         <div class="live-hud">
           <div class="hud-left">
@@ -173,8 +224,12 @@
         <!-- Quick Actions & Keyboard Hint -->
         <div class="typing-actions">
           <button id="btn-quick-restart" class="btn-restart" title="Restart test">
-            <span>🔄 Restart Test</span>
+            <span>🔄 Restart</span>
             <span class="kbd-hint">Tab</span>
+          </button>
+          <button id="btn-exit-test" class="btn-exit" title="Exit to settings menu">
+            <span>✕ Exit</span>
+            <span class="kbd-hint">Esc</span>
           </button>
         </div>
       </div>
@@ -291,6 +346,10 @@
             <button id="btn-play-again" class="btn-primary">
               <span>🔄 Play Again</span>
               <span class="kbd-hint" style="background:rgba(0,0,0,0.25); color:#000;">Tab</span>
+            </button>
+            <button id="btn-results-menu" class="btn-secondary" title="Return to lobby to change settings">
+              <span>⚙️ Change Settings</span>
+              <span class="kbd-hint">Esc</span>
             </button>
             <button id="btn-copy-result" class="btn-secondary">
               <span>📋 Copy Summary</span>
@@ -603,6 +662,102 @@
         <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
           <button class="btn-secondary modal-close">Cancel</button>
           <button id="btn-apply-custom-text" class="btn-primary">Start Practice Drill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: CUSTOM TIME DURATION
+       ======================================================================== -->
+  <div id="custom-time-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">⏱️ Custom Duration</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="custom-modal-subtitle">
+          Set any duration without any upper limit. Choose between seconds or minutes.
+        </p>
+
+        <div class="custom-field-box">
+          <label class="custom-label" for="custom-time-val">Duration Value</label>
+          <div class="custom-input-unit-row">
+            <input type="number" id="custom-time-val" class="custom-num-input" min="1" step="1" placeholder="Enter duration..." value="45">
+            <div class="custom-unit-pills">
+              <button type="button" class="unit-toggle-btn active" data-unit="seconds">Seconds (s)</button>
+              <button type="button" class="unit-toggle-btn" data-unit="minutes">Minutes (m)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-presets-box">
+          <span class="presets-label">Quick Suggestions:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip" data-val="45" data-unit="seconds">45s</button>
+            <button type="button" class="preset-chip" data-val="90" data-unit="seconds">90s</button>
+            <button type="button" class="preset-chip" data-val="3" data-unit="minutes">3m</button>
+            <button type="button" class="preset-chip" data-val="5" data-unit="minutes">5m</button>
+            <button type="button" class="preset-chip" data-val="10" data-unit="minutes">10m</button>
+            <button type="button" class="preset-chip" data-val="30" data-unit="minutes">30m</button>
+          </div>
+        </div>
+
+        <div id="custom-time-preview-note" class="calc-preview-note">
+          Total Duration: <strong>45 seconds</strong>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="btn-secondary modal-close">Cancel</button>
+          <button id="btn-save-custom-time" class="btn-primary" style="flex:1;">
+            <span>✓ Set Custom Duration</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 5: CUSTOM WORD COUNT
+       ======================================================================== -->
+  <div id="custom-words-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">🔤 Custom Word Count</h3>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="custom-modal-subtitle">
+          Type as many words as you want without any upper limit.
+        </p>
+
+        <div class="custom-field-box">
+          <label class="custom-label" for="custom-words-val">Word Count Goal</label>
+          <input type="number" id="custom-words-val" class="custom-num-input" min="1" step="1" placeholder="Enter word count..." value="200">
+        </div>
+
+        <div class="quick-presets-box">
+          <span class="presets-label">Quick Suggestions:</span>
+          <div class="preset-chips">
+            <button type="button" class="preset-chip-word" data-val="150">150</button>
+            <button type="button" class="preset-chip-word" data-val="200">200</button>
+            <button type="button" class="preset-chip-word" data-val="300">300</button>
+            <button type="button" class="preset-chip-word" data-val="500">500</button>
+            <button type="button" class="preset-chip-word" data-val="1000">1,000</button>
+            <button type="button" class="preset-chip-word" data-val="5000">5,000</button>
+          </div>
+        </div>
+
+        <div id="custom-words-preview-note" class="calc-preview-note">
+          Target Goal: <strong>200 words</strong>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="btn-secondary modal-close">Cancel</button>
+          <button id="btn-save-custom-words" class="btn-primary" style="flex:1;">
+            <span>✓ Set Word Count</span>
+          </button>
         </div>
       </div>
     </div>

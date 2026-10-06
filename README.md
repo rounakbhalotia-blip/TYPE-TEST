@@ -40,8 +40,8 @@ No audio files required! Synthesized in real-time with sub-millisecond latency:
 
 ### 🎮 3. Game Modes & Difficulty Curves
 - **Test Modes**:
-  - `Time Mode`: 15s, 30s, 60s, or 120s sprint.
-  - `Words Mode`: 10, 25, 50, or 100 words endurance.
+  - `Time Mode`: 15s, 30s, 60s, 120s, or **Custom Duration** with choices between **Seconds** or **Minutes** without any upper limit (e.g., 45s, 5m, 30m, 120m).
+  - `Words Mode`: 10, 25, 50, 100, or **Custom Word Count** without any upper limit (e.g., 200, 500, 1,000, 5,000 words).
   - `Quote Mode`: Curated famous quotes from icons like Einstein, Steve Jobs, Turing, and Lovelace.
   - `Zen Mode`: Infinite stress-free typing without time or mistake limits.
   - `Sudden Death / Survival Mode`: One typo and game over! How far can you survive?
@@ -105,14 +105,23 @@ No audio files required! Synthesized in real-time with sub-millisecond latency:
 
 ---
 
+### 🚀 7. Dedicated Start Lobby & Distraction-Free Focus Mode
+- **Clean Welcome Lobby**: On initial page load, presents a polished hero lobby card with real-time configuration summary badges (`⏱️ Time 30s • Medium`) and a prominent glowing **Start Test** button (`▶ Start Test` / `Space` / `Enter`).
+- **Distraction-Free Active State**: When the test begins, all distracting settings panels, headers, and footers vanish completely. Only the text to type, smooth caret, live HUD, and clear **Restart** (`Tab`) and **Exit** (`Esc`) buttons remain.
+- **Frictionless Exit & Menu Return**: Hitting Exit or pressing `Esc` aborts the test cleanly and returns back to the lobby where all settings and customizer options instantly reappear.
+
+---
+
 ## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
 | :--- | :--- |
+| `Space` / `Enter` (Lobby) | Instantly launch typing test |
 | `Tab` | Quick restart test with fresh words |
-| `Esc` | Close any open modal or focus typing area |
+| `Esc` (In Test / Results) | Exit back to Lobby & restore all settings |
+| `Esc` (In Modals) | Close modal dialog |
 | `Ctrl + Backspace` | Delete entire current word |
-| Any regular key / Tap | Auto-focus typing field and start typing |
+| Regular typing | Types into active word; Space locks in current word |
 
 ---
 
