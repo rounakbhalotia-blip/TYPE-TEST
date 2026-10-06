@@ -145,17 +145,19 @@
           </div>
 
           <h1 class="start-hero-title">Ready to Test Your Speed?</h1>
-          <p class="start-hero-subtitle">Customize your test settings above, then tap start or hit Space to begin typing.</p>
+          <p class="start-hero-subtitle desktop-only">Customize your test settings above, then tap start or hit Space to begin typing.</p>
+          <p class="start-hero-subtitle mobile-only">Choose your setup above and tap below to start typing.</p>
 
           <div class="start-cta-wrap">
             <button id="btn-start-test" class="btn-start-hero" aria-label="Start Typing Test">
               <span class="btn-start-play-icon">▶</span>
-              <span class="btn-start-label">Start Test</span>
-              <span class="kbd-hint">Space / Enter</span>
+              <span class="btn-start-label desktop-only">Start Test</span>
+              <span class="btn-start-label mobile-only">Start Typing</span>
+              <span class="kbd-hint desktop-only">Space / Enter</span>
             </button>
           </div>
 
-          <div class="start-features-grid">
+          <div class="start-features-grid desktop-only">
             <div class="start-feature-item">
               <span class="start-feature-icon">⚡</span>
               <div class="start-feature-text">
@@ -225,11 +227,11 @@
         <div class="typing-actions">
           <button id="btn-quick-restart" class="btn-restart" title="Restart test">
             <span>🔄 Restart</span>
-            <span class="kbd-hint">Tab</span>
+            <span class="kbd-hint desktop-only">Tab</span>
           </button>
           <button id="btn-exit-test" class="btn-exit" title="Exit to settings menu">
             <span>✕ Exit</span>
-            <span class="kbd-hint">Esc</span>
+            <span class="kbd-hint desktop-only">Esc</span>
           </button>
         </div>
       </div>
